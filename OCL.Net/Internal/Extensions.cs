@@ -1,6 +1,8 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
+using OCL.Net.Native;
 using OCL.Net.Native.Enums;
+using OCL.Net.Native.Structures;
 
 namespace OCL.Net.Internal
 {
@@ -10,6 +12,16 @@ namespace OCL.Net.Internal
         {
             if (errorCode < ErrorCode.Success)
                 throw new OpenClException(errorCode);
+        }
+
+        public static Device[] ToDevices(this DeviceId[] ids, IOpenCl library)
+        {
+            var devices = new Device[ids.Length];
+
+            for (var i = 0; i < devices.Length; i++)
+                devices[i] = Device.FromId(library, ids[i]);
+
+            return devices;
         }
 
         [SuppressMessage("ReSharper", "ParameterTypeCanBeEnumerable.Global")]
