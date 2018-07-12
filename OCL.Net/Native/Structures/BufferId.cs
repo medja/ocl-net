@@ -6,7 +6,7 @@ namespace OCL.Net.Native.Structures
 {
     [StructLayout(LayoutKind.Sequential)]
     [SuppressMessage("ReSharper", "ConvertToAutoProperty")]
-    public struct BufferId
+    public struct BufferId : IHandle
     {
         public IntPtr Handle => _handle;
         private readonly IntPtr _handle;
