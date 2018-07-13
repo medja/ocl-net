@@ -33,5 +33,10 @@ namespace OCL.Net.Internal
 
             return (IntPtr) nextHandle;
         }
+
+        public static CommandQueue CreateCommandQueue(IOpenCl library, CommandQueueId commandQueueId)
+        {
+            return CommandQueue.FromId(library, commandQueueId, false);
+        }
     }
 }
