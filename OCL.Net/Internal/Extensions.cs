@@ -14,6 +14,14 @@ namespace OCL.Net.Internal
                 throw new OpenClException(errorCode);
         }
 
+        public static ErrorCode GetErrorCode(this CommandExecutionStatus status)
+        {
+            if (status < 0)
+                return (ErrorCode) status;
+
+            return ErrorCode.Success;
+        }
+
         public static Device[] ToDevices(this DeviceId[] ids, IOpenCl library)
         {
             var devices = new Device[ids.Length];

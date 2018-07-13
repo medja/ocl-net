@@ -38,5 +38,51 @@ namespace OCL.Net.Internal
         {
             return CommandQueue.FromId(library, commandQueueId, false);
         }
+
+        public static Event CreateEvent(IOpenCl library, EventId eventId)
+        {
+            return Event.FromId(library, eventId);
+        }
+
+        public static Event<T> CreateEvent<T>(IOpenCl library, EventId eventId, T result)
+        {
+            return Event.FromId(library, eventId, result);
+        }
+
+        public static AutoDisposedEvent CreateAutoDisposedEvent(IOpenCl library, EventId eventId)
+        {
+            return AutoDisposedEvent.FromId(library, eventId);
+        }
+
+        public static AutoDisposedEvent<T> CreateAutoDisposedEvent<T>(IOpenCl library, EventId eventId, T result)
+        {
+            return AutoDisposedEvent.FromId(library, eventId, result);
+        }
+
+        public static AutoDisposedEvent<T> CreateAutoDisposedEvent<T>(IOpenCl library, EventId eventId,
+            Func<T> resultFactory)
+        {
+            return AutoDisposedEvent.FromId(library, eventId, resultFactory);
+        }
+
+        public static UserEvent CreateUserEvent(IOpenCl library, EventId eventId)
+        {
+            return UserEvent.FromId(library, eventId);
+        }
+
+        internal static EventId EnqueueEvents(CommandQueue commandQueue, bool blocking, EventId[] eventIds)
+        {
+            EventId eventId;
+
+            var library = commandQueue.Library;
+            var length = (uint) (eventIds?.Length ?? 0);
+
+            if (blocking)
+                library.clEnqueueBarrierWithWaitList(commandQueue, length, eventIds, out eventId).HandleError();
+            else
+                library.clEnqueueMarkerWithWaitList(commandQueue, length, eventIds, out eventId).HandleError();
+
+            return eventId;
+        }
     }
 }

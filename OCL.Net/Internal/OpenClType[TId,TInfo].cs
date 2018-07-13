@@ -1,10 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
-using System.Text;
 using OCL.Net.Native;
 using OCL.Net.Native.Enums;
 
@@ -43,11 +40,13 @@ namespace OCL.Net.Internal
             return cache ?? (cache = LoadString(info));
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected string LoadString(TInfo info)
         {
-            return Encoding.UTF8.GetString(LoadArray<byte>(info)).TrimEnd('\0');
+            return InfoLoader.LoadString(info, GetInfo);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected T LoadValue<T>(TInfo info, ref T? cache) where T : struct
         {
             if (cache.HasValue)
@@ -59,29 +58,22 @@ namespace OCL.Net.Internal
             return value;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected T LoadValue<T>(TInfo info) where T : struct
         {
-            return LoadArray<T>(info).FirstOrDefault();
+            return InfoLoader.LoadValue<T, TInfo>(info, GetInfo);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected T[] LoadArray<T>(TInfo info, ref T[] cache) where T : struct
         {
             return cache ?? (cache = LoadArray<T>(info));
         }
 
-        protected unsafe T[] LoadArray<T>(TInfo info) where T : struct
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected T[] LoadArray<T>(TInfo info) where T : struct
         {
-            GetInfo(info, UIntPtr.Zero, IntPtr.Zero, out var size).HandleError();
-
-            var buffer = new T[(int) size / Unsafe.SizeOf<T>()];
-            var span = MemoryMarshal.AsBytes(new Span<T>(buffer));
-
-            fixed (byte* ptr = &span.GetPinnableReference())
-            {
-                GetInfo(info, size, (IntPtr) ptr, out _).HandleError();
-            }
-
-            return buffer;
+            return InfoLoader.LoadArray<T, TInfo>(info, GetInfo);
         }
 
         protected static OpenClType<TId, TInfo> FromId(TId id)

@@ -9,6 +9,7 @@
     <ItemGroup>
       <PackageReference Include="AdvancedDLSupport" Version="1.3.0" />
       <PackageReference Include="System.Memory" Version="4.5.1" />
+      <PackageReference Include="System.Threading.Tasks.Extensions" Version="4.5.1" />
     </ItemGroup>
 
 </Project>
