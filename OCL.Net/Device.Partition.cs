@@ -32,12 +32,11 @@ namespace OCL.Net
 
         private Device[] PartitionEquallyInternal(uint groups)
         {
-            var properties = new[]
-            {
-                (IntPtr) DevicePartitionProperty.DevicePartitionEqually,
-                (IntPtr) groups,
-                (IntPtr) 0
-            };
+            Span<IntPtr> properties = stackalloc IntPtr[3];
+
+            properties[0] = (IntPtr) DevicePartitionProperty.DevicePartitionEqually;
+            properties[1] = (IntPtr) groups;
+            properties[2] = IntPtr.Zero;
 
             return Partition(properties);
         }
@@ -112,23 +111,31 @@ namespace OCL.Net
         public Device[] PartitionByCache(
             DeviceAffinityDomain affinityDomain = DeviceAffinityDomain.DeviceAffinityDomainNextPartitionable)
         {
-            var properties = new[]
-            {
-                (IntPtr) DevicePartitionProperty.DevicePartitionByAffinityDomain,
-                (IntPtr) affinityDomain,
-                (IntPtr) 0
-            };
+            Span<IntPtr> properties = stackalloc IntPtr[3];
+
+            properties[0] = (IntPtr) DevicePartitionProperty.DevicePartitionByAffinityDomain;
+            properties[1] = (IntPtr) affinityDomain;
+            properties[2] = IntPtr.Zero;
 
             return Partition(properties);
         }
 
         #endregion
 
-        private Device[] Partition(IntPtr[] properties)
+        private unsafe Device[] Partition(Span<IntPtr> properties)
         {
-            Library.clCreateSubDevices(Id, properties, 0, null, out var count).HandleError();
-            var deviceIds = new DeviceId[count];
-            Library.clCreateSubDevices(Id, properties, count, deviceIds, out _).HandleError();
+            DeviceId[] deviceIds;
+
+            fixed (IntPtr* propertiesPtr = properties)
+            {
+                uint count;
+                Library.clCreateSubDevicesUnsafe(Id, propertiesPtr, 0, null, &count).HandleError();
+
+                deviceIds = new DeviceId[count];
+
+                fixed (DeviceId* deviceIdsPtr = deviceIds)
+                    Library.clCreateSubDevicesUnsafe(Id, propertiesPtr, count, deviceIdsPtr, null).HandleError();
+            }
 
             var devices = new Device[deviceIds.Length];
 

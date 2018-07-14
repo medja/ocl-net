@@ -11,9 +11,10 @@ namespace OCL.Net
         private Device(DeviceId id, IOpenCl lib) : base(id, lib)
         { }
 
-        protected override ErrorCode GetInfo(DeviceInfo info, UIntPtr bufferSize, IntPtr buffer, out UIntPtr size)
+        protected override unsafe ErrorCode GetInfo(
+            DeviceInfo info, UIntPtr bufferSize, byte* buffer, UIntPtr* size)
         {
-            return Library.clGetDeviceInfo(Id, info, bufferSize, buffer, out size);
+            return Library.clGetDeviceInfoUnsafe(Id, info, bufferSize, buffer, size);
         }
 
         protected override ErrorCode RetainObject()

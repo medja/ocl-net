@@ -6,7 +6,7 @@ namespace OCL.Net.Internal
 {
     public abstract class RefCountedType<TId, TInfo> : OpenClType<TId, TInfo>, IDisposable
         where TId : struct, IHandle
-        where TInfo : struct
+        where TInfo : Enum
     {
         public abstract uint ReferenceCount { get; }
 

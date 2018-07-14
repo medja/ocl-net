@@ -4,6 +4,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using OCL.Net.Internal;
+using OCL.Net.Native.Enums;
 using OCL.Net.Native.Structures;
 
 namespace OCL.Net
@@ -26,7 +27,7 @@ namespace OCL.Net
         }
 
         [SuppressMessage("ReSharper", "PossibleNullReferenceException")]
-        private static Context CreateInternal(ICollection<Device> devices)
+        private static unsafe Context CreateInternal(ICollection<Device> devices)
         {
             if (devices == null)
                 throw new ArgumentNullException(nameof(devices));
@@ -55,7 +56,14 @@ namespace OCL.Net
 
             var length = (uint) ids.Length;
 
-            var id = lib.clCreateContext(null, length, ids, ContextCallback, handle, out var errorCode);
+            ContextId id;
+            ErrorCode errorCode;
+
+            fixed (DeviceId* idsPtr = ids)
+            {
+                id = lib.clCreateContextUnsafe(null, length, idsPtr, ContextCallback, (void*) handle, &errorCode);
+            }
+
             errorCode.HandleError();
 
             var context = new Context(id, lib, handle);

@@ -72,8 +72,8 @@ namespace OCL.Net
         }
 
         [SuppressMessage("ReSharper", "UnusedParameter.Local")]
-        private static void EventCallback(EventId eventId, CommandExecutionStatus eventCommandExecStatus,
-            IntPtr userData)
+        private static unsafe void EventCallback(EventId eventId, CommandExecutionStatus eventCommandExecStatus,
+            void* userData)
         {
             void HandleCallback(object state)
             {

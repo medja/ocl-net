@@ -1,4 +1,6 @@
+using System;
 using OCL.Net.Internal;
+using OCL.Net.Native.Structures;
 
 namespace OCL.Net
 {
@@ -6,7 +8,10 @@ namespace OCL.Net
     {
         public new AutoDisposedEvent Enqueue(CommandQueue commandQueue, bool blocking = true)
         {
-            var eventId = Utils.EnqueueEvents(commandQueue, blocking, new[] {Id});
+            Span<EventId> ids = stackalloc EventId[1];
+            ids[0] = Id;
+
+            var eventId = Utils.EnqueueEvents(commandQueue, blocking, ids);
 
             return AutoDisposedEvent<T>.FromId(Library, eventId, () => _result.Value);
         }

@@ -16,9 +16,9 @@ namespace OCL.Net
             Library.clUnloadPlatformCompiler(Id).HandleError();
         }
 
-        protected override ErrorCode GetInfo(PlatformInfo info, UIntPtr bufferSize, IntPtr buffer, out UIntPtr size)
+        protected override unsafe ErrorCode GetInfo(PlatformInfo info, UIntPtr bufferSize, byte* buffer, UIntPtr* size)
         {
-            return Library.clGetPlatformInfo(Id, info, bufferSize, buffer, out size);
+            return Library.clGetPlatformInfoUnsafe(Id, info, bufferSize, buffer, size);
         }
 
         public static implicit operator Platform(PlatformId id)

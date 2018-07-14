@@ -1,7 +1,5 @@
 using System;
 using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
 using System.Text;
 using OCL.Net.Native.Enums;
 
@@ -9,34 +7,35 @@ namespace OCL.Net.Internal
 {
     public static class InfoLoader
     {
-        public delegate ErrorCode LoadInfo<in T>(T info, UIntPtr bufferSize, IntPtr buffer, out UIntPtr size)
-            where T : struct;
+        public unsafe delegate ErrorCode LoadInfo<in TInfo>(TInfo info, UIntPtr bufferSize, byte* buffer, UIntPtr* size)
+            where TInfo : Enum;
 
         public static string LoadString<TInfo>(TInfo info, LoadInfo<TInfo> loadInfo)
-            where TInfo : struct
+            where TInfo : Enum
         {
             return Encoding.UTF8.GetString(LoadArray<byte, TInfo>(info, loadInfo)).TrimEnd('\0');
         }
 
         public static T LoadValue<T, TInfo>(TInfo info, LoadInfo<TInfo> loadInfo)
-            where T : struct
-            where TInfo : struct
+            where T : unmanaged
+            where TInfo : Enum
         {
             return LoadArray<T, TInfo>(info, loadInfo).FirstOrDefault();
         }
 
         public static unsafe T[] LoadArray<T, TInfo>(TInfo info, LoadInfo<TInfo> loadInfo)
-            where T : struct
-            where TInfo : struct
+            where T : unmanaged
+            where TInfo : Enum
         {
-            loadInfo(info, UIntPtr.Zero, IntPtr.Zero, out var size).HandleError();
+            UIntPtr size;
 
-            var buffer = new T[(int) size / Unsafe.SizeOf<T>()];
-            var span = MemoryMarshal.AsBytes(new Span<T>(buffer));
+            loadInfo(info, UIntPtr.Zero, null, &size).HandleError();
 
-            fixed (byte* ptr = &span.GetPinnableReference())
+            var buffer = new T[(long) size / sizeof(T)];
+
+            fixed (T* ptr = buffer)
             {
-                loadInfo(info, size, (IntPtr) ptr, out _).HandleError();
+                loadInfo(info, size, (byte*) ptr, null).HandleError();
             }
 
             return buffer;

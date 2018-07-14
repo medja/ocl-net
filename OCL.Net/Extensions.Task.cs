@@ -45,7 +45,11 @@ namespace OCL.Net
             ErrorCode faultErrorCode = ErrorCode.ExecStatusErrorForEventsInWaitList)
         {
             var userEvent = task.ToAutoDisposedEvent(commandQueue.Context, faultErrorCode);
-            var id = Utils.EnqueueEvents(commandQueue, blocking, new[] {userEvent.Id});
+
+            Span<EventId> ids = stackalloc EventId[1];
+            ids[0] = userEvent.Id;
+
+            var id = Utils.EnqueueEvents(commandQueue, blocking, ids);
 
             return Event.FromId(commandQueue.Library, id);
         }
@@ -55,7 +59,11 @@ namespace OCL.Net
             ErrorCode faultErrorCode = ErrorCode.ExecStatusErrorForEventsInWaitList)
         {
             var userEvent = task.ToAutoDisposedEvent(commandQueue.Context, faultErrorCode);
-            var id = Utils.EnqueueEvents(commandQueue, blocking, new[] {userEvent.Id});
+
+            Span<EventId> ids = stackalloc EventId[1];
+            ids[0] = userEvent.Id;
+
+            var id = Utils.EnqueueEvents(commandQueue, blocking, ids);
 
             return Event.FromId(commandQueue.Library, id, () => task.Result);
         }
@@ -65,7 +73,11 @@ namespace OCL.Net
             ErrorCode faultErrorCode = ErrorCode.ExecStatusErrorForEventsInWaitList)
         {
             var userEvent = task.ToAutoDisposedEvent(commandQueue.Context, faultErrorCode);
-            var id = Utils.EnqueueEvents(commandQueue, blocking, new[] {userEvent.Id});
+
+            Span<EventId> ids = stackalloc EventId[1];
+            ids[0] = userEvent.Id;
+
+            var id = Utils.EnqueueEvents(commandQueue, blocking, ids);
 
             return AutoDisposedEvent.FromId(commandQueue.Library, id);
         }
@@ -75,7 +87,11 @@ namespace OCL.Net
             ErrorCode faultErrorCode = ErrorCode.ExecStatusErrorForEventsInWaitList)
         {
             var userEvent = task.ToAutoDisposedEvent(commandQueue.Context, faultErrorCode);
-            var id = Utils.EnqueueEvents(commandQueue, blocking, new[] {userEvent.Id});
+
+            Span<EventId> ids = stackalloc EventId[1];
+            ids[0] = userEvent.Id;
+
+            var id = Utils.EnqueueEvents(commandQueue, blocking, ids);
 
             return AutoDisposedEvent.FromId(commandQueue.Library, id, () => task.Result);
         }

@@ -29,9 +29,10 @@ namespace OCL.Net
             Library.clFinish(Id).HandleError();
         }
 
-        protected override ErrorCode GetInfo(CommandQueueInfo info, UIntPtr bufferSize, IntPtr buffer, out UIntPtr size)
+        protected override unsafe ErrorCode GetInfo(
+            CommandQueueInfo info, UIntPtr bufferSize, byte* buffer, UIntPtr* size)
         {
-            return Library.clGetCommandQueueInfo(Id, info, bufferSize, buffer, out size);
+            return Library.clGetCommandQueueInfoUnsafe(Id, info, bufferSize, buffer, size);
         }
 
         protected override ErrorCode RetainObject()

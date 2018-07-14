@@ -28,20 +28,21 @@ namespace OCL.Net
 
         [SuppressMessage("ReSharper", "IdentifierTypo")]
         [SuppressMessage("ReSharper", "UnusedParameter.Local")]
-        private static void ContextCallback(string errinfo, byte[] privateInfo, UIntPtr cb, IntPtr userData)
+        private static unsafe void ContextCallback(string errinfo, byte* privateInfo, UIntPtr cb, void* userData)
         {
             void HandleCallback(object state)
             {
                 Context context;
+                var handle = (IntPtr) userData;
 
                 lock (References)
                 {
-                    if (!References.TryGetValue(userData, out var reference))
+                    if (!References.TryGetValue(handle, out var reference))
                         return;
 
                     if (!reference.TryGetTarget(out context))
                     {
-                        References.Remove(userData);
+                        References.Remove(handle);
                         return;
                     }
                 }

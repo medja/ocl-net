@@ -44,20 +44,28 @@ namespace OCL.Net
             return collection.SelectMany(LoadPlatforms, FromId);
         }
 
-        private static IEnumerable<PlatformId> LoadPlatforms(IOpenCl library)
+        private static unsafe IEnumerable<PlatformId> LoadPlatforms(IOpenCl library)
         {
-            library.clGetPlatformIDs(0, null, out var count).HandleError();
+            uint count;
+            library.clGetPlatformIDsUnsafe(0, null, &count).HandleError();
+
             var platforms = new PlatformId[count];
-            library.clGetPlatformIDs(count, platforms, out _).HandleError();
+
+            fixed (PlatformId* platformsPtr = platforms)
+                library.clGetPlatformIDsUnsafe(count, platformsPtr, null).HandleError();
 
             return platforms;
         }
 
-        private static IEnumerable<DeviceId> LoadDevices(IOpenCl library, PlatformId platform, DeviceType type)
+        private static unsafe IEnumerable<DeviceId> LoadDevices(IOpenCl library, PlatformId platform, DeviceType type)
         {
-            library.clGetDeviceIDs(platform, type, 0, null, out var count).HandleError();
+            uint count;
+            library.clGetDeviceIDsUnsafe(platform, type, 0, null, &count).HandleError();
+
             var devices = new DeviceId[count];
-            library.clGetDeviceIDs(platform, type, count, devices, out _).HandleError();
+
+            fixed (DeviceId* devicesPtr = devices)
+                library.clGetDeviceIDsUnsafe(platform, type, count, devicesPtr, null).HandleError();
 
             return devices;
         }

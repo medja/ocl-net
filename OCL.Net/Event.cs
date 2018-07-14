@@ -23,7 +23,7 @@ namespace OCL.Net
         private readonly object _syncLock = new object();
         private readonly Lazy<TaskCompletionSource<object>> _taskCompletionSource;
 
-        private protected Event(EventId id, IOpenCl lib, bool autoDispose = false, bool userEvent = false)
+        private protected unsafe Event(EventId id, IOpenCl lib, bool autoDispose = false, bool userEvent = false)
             : base(id, lib)
         {
             _autoDispose = autoDispose;
@@ -32,9 +32,12 @@ namespace OCL.Net
             _taskCompletionSource = new Lazy<TaskCompletionSource<object>>(CreateTaskCompletionSource);
 
             if (userEvent)
+            {
                 IsFlushed = true;
-            else if (!IsCompleted)
-                Library.clSetEventCallback(Id, CommandExecutionStatus.Complete, EventCallback, IntPtr.Zero).HandleError();
+                return;
+            }
+
+            Library.clSetEventCallbackUnsafe(Id, CommandExecutionStatus.Complete, EventCallback, null).HandleError();
         }
 
         public new void Retain()
@@ -59,9 +62,9 @@ namespace OCL.Net
             }
         }
 
-        protected override ErrorCode GetInfo(EventInfo info, UIntPtr bufferSize, IntPtr buffer, out UIntPtr size)
+        protected override unsafe ErrorCode GetInfo(EventInfo info, UIntPtr bufferSize, byte* buffer, UIntPtr* size)
         {
-            return Library.clGetEventInfo(Id, info, bufferSize, buffer, out size);
+            return Library.clGetEventInfoUnsafe(Id, info, bufferSize, buffer, size);
         }
 
         protected override ErrorCode RetainObject()

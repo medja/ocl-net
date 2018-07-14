@@ -20,7 +20,7 @@ namespace OCL.Net
             IsFlushed = true;
         }
 
-        public void Wait()
+        public unsafe void Wait()
         {
             if (IsCompleted)
             {
@@ -28,7 +28,8 @@ namespace OCL.Net
                 return;
             }
 
-            var errorCode = Library.clWaitForEvents(1, new[] {Id});
+            var id = Id;
+            var errorCode = Library.clWaitForEventsUnsafe(1, &id);
 
             Status.HandleError();
             errorCode.HandleError();
@@ -38,7 +39,10 @@ namespace OCL.Net
 
         public AutoDisposedEvent Enqueue(CommandQueue commandQueue, bool blocking = true)
         {
-            var eventId = Utils.EnqueueEvents(commandQueue, blocking, new[] {Id});
+            Span<EventId> ids = stackalloc EventId[1];
+            ids[0] = Id;
+
+            var eventId = Utils.EnqueueEvents(commandQueue, blocking, ids);
 
             return AutoDisposedEvent.FromId(Library, eventId);
         }

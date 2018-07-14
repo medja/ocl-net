@@ -25,14 +25,14 @@ namespace OCL.Net
         public TimeSpan ExecutionDuration => ComputeDuration(StartedTimestamp, EndedTimestamp);
         public TimeSpan TotalDuration => ComputeDuration(CreatedTimestamp, EndedTimestamp);
 
-        private ulong LoadProfilingTimestamp(ProfilingInfo info)
+        private unsafe ulong LoadProfilingTimestamp(ProfilingInfo info)
         {
             return InfoLoader.LoadValue<ulong, ProfilingInfo>(info, GetProfilingInfo);
         }
 
-        private ErrorCode GetProfilingInfo(ProfilingInfo info, UIntPtr bufferSize, IntPtr buffer, out UIntPtr size)
+        private unsafe ErrorCode GetProfilingInfo( ProfilingInfo info, UIntPtr bufferSize, byte* buffer, UIntPtr* size)
         {
-            return Library.clGetEventProfilingInfo(Id, info, bufferSize, buffer, out size);
+            return Library.clGetEventProfilingInfoUnsafe(Id, info, bufferSize, buffer, size);
         }
 
         private static TimeSpan ComputeDuration(ulong start, ulong end)

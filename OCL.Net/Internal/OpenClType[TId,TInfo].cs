@@ -11,7 +11,7 @@ namespace OCL.Net.Internal
     [SuppressMessage("ReSharper", "UnassignedGetOnlyAutoProperty")]
     public abstract class OpenClType<TId, TInfo>
         where TId : struct, IHandle
-        where TInfo : struct
+        where TInfo : Enum
     {
         private static readonly Dictionary<TId, WeakReference<OpenClType<TId, TInfo>>> Instances
             = new Dictionary<TId, WeakReference<OpenClType<TId, TInfo>>>();
@@ -32,7 +32,7 @@ namespace OCL.Net.Internal
             }
         }
 
-        protected abstract ErrorCode GetInfo(TInfo info, UIntPtr bufferSize, IntPtr buffer, out UIntPtr size);
+        protected abstract unsafe ErrorCode GetInfo(TInfo info, UIntPtr bufferSize, byte* buffer, UIntPtr* size);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected string LoadString(TInfo info, ref string cache)
@@ -41,13 +41,13 @@ namespace OCL.Net.Internal
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected string LoadString(TInfo info)
+        protected unsafe string LoadString(TInfo info)
         {
             return InfoLoader.LoadString(info, GetInfo);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected T LoadValue<T>(TInfo info, ref T? cache) where T : struct
+        protected T LoadValue<T>(TInfo info, ref T? cache) where T : unmanaged
         {
             if (cache.HasValue)
                 return cache.Value;
@@ -59,19 +59,19 @@ namespace OCL.Net.Internal
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected T LoadValue<T>(TInfo info) where T : struct
+        protected unsafe T LoadValue<T>(TInfo info) where T : unmanaged
         {
             return InfoLoader.LoadValue<T, TInfo>(info, GetInfo);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected T[] LoadArray<T>(TInfo info, ref T[] cache) where T : struct
+        protected T[] LoadArray<T>(TInfo info, ref T[] cache) where T : unmanaged
         {
             return cache ?? (cache = LoadArray<T>(info));
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected T[] LoadArray<T>(TInfo info) where T : struct
+        protected unsafe T[] LoadArray<T>(TInfo info) where T : unmanaged
         {
             return InfoLoader.LoadArray<T, TInfo>(info, GetInfo);
         }

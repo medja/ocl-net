@@ -70,17 +70,20 @@ namespace OCL.Net.Internal
             return UserEvent.FromId(library, eventId);
         }
 
-        internal static EventId EnqueueEvents(CommandQueue commandQueue, bool blocking, EventId[] eventIds)
+        internal static unsafe EventId EnqueueEvents(CommandQueue commandQueue, bool blocking, Span<EventId> eventIds)
         {
             EventId eventId;
 
             var library = commandQueue.Library;
-            var length = (uint) (eventIds?.Length ?? 0);
+            var length = (uint) eventIds.Length;
 
-            if (blocking)
-                library.clEnqueueBarrierWithWaitList(commandQueue, length, eventIds, out eventId).HandleError();
-            else
-                library.clEnqueueMarkerWithWaitList(commandQueue, length, eventIds, out eventId).HandleError();
+            fixed (EventId* idsPtr = eventIds)
+            {
+                if (blocking)
+                    library.clEnqueueBarrierWithWaitListUnsafe(commandQueue, length, idsPtr, &eventId).HandleError();
+                else
+                    library.clEnqueueMarkerWithWaitListUnsafe(commandQueue, length, idsPtr, &eventId).HandleError();
+            }
 
             return eventId;
         }

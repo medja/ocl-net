@@ -84,7 +84,7 @@ namespace OCL.Net.Native.Structures
         {
             return new ImageDescription(
                 MemObjectType.MemObjectImage1D, width, UIntPtr.Zero, UIntPtr.Zero,
-                UIntPtr.Zero, rowPitch, UIntPtr.Zero, 0, 0, default(BufferId));
+                UIntPtr.Zero, rowPitch, UIntPtr.Zero, 0, 0, default);
         }
 
         #endregion
@@ -166,7 +166,7 @@ namespace OCL.Net.Native.Structures
         {
             return new ImageDescription(
                 MemObjectType.MemObjectImage1DArray, width, UIntPtr.Zero, UIntPtr.Zero,
-                arrayLength, rowPitch, UIntPtr.Zero, 0, 0, default(BufferId));
+                arrayLength, rowPitch, UIntPtr.Zero, 0, 0, default);
         }
 
         #endregion
@@ -224,7 +224,7 @@ namespace OCL.Net.Native.Structures
         public static ImageDescription Create2D(UIntPtr width, UIntPtr height, UIntPtr rowPitch, UIntPtr slicePitch)
         {
             return new ImageDescription(MemObjectType.MemObjectImage2D, width, height, UIntPtr.Zero,
-                UIntPtr.Zero, rowPitch, slicePitch, 0, 0, default(BufferId));
+                UIntPtr.Zero, rowPitch, slicePitch, 0, 0, default);
         }
 
         #endregion
@@ -290,7 +290,7 @@ namespace OCL.Net.Native.Structures
             UIntPtr rowPitch, UIntPtr slicePitch, UIntPtr arrayLength)
         {
             return new ImageDescription(MemObjectType.MemObjectImage2DArray, width, height, UIntPtr.Zero,
-                arrayLength, rowPitch, slicePitch, 0, 0, default(BufferId));
+                arrayLength, rowPitch, slicePitch, 0, 0, default);
         }
 
         #endregion
@@ -353,7 +353,7 @@ namespace OCL.Net.Native.Structures
             UIntPtr rowPitch, UIntPtr slicePitch)
         {
             return new ImageDescription(MemObjectType.MemObjectImage3D, width, height, depth,
-                UIntPtr.Zero, rowPitch, slicePitch, 0, 0, default(BufferId));
+                UIntPtr.Zero, rowPitch, slicePitch, 0, 0, default);
         }
 
         #endregion

@@ -18,9 +18,10 @@ namespace OCL.Net
             _handle = handle;
         }
 
-        protected override ErrorCode GetInfo(ContextInfo info, UIntPtr bufferSize, IntPtr buffer, out UIntPtr size)
+        protected override unsafe ErrorCode GetInfo
+            (ContextInfo info, UIntPtr bufferSize, byte* buffer, UIntPtr* size)
         {
-            return Library.clGetContextInfo(Id, info, bufferSize, buffer, out size);
+            return Library.clGetContextInfoUnsafe(Id, info, bufferSize, buffer, size);
         }
 
         protected override ErrorCode RetainObject()

@@ -13,8 +13,6 @@ namespace OCL.Net
     [SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
     public sealed partial class Device
     {
-        private static readonly PlatformId EmptyPlatform = default(PlatformId);
-
         public static IEnumerable<Device> QueryDevices(DeviceType type = DeviceType.Default)
         {
             return QueryDevices(type, OpenCl.Libraries);
@@ -41,11 +39,15 @@ namespace OCL.Net
             return collection.SelectMany(library => LoadDevices(library, type), FromId);
         }
 
-        private static IEnumerable<DeviceId> LoadDevices(IOpenCl library, DeviceType type)
+        private static unsafe IEnumerable<DeviceId> LoadDevices(IOpenCl library, DeviceType type)
         {
-            library.clGetDeviceIDs(EmptyPlatform, type, 0, null, out var count).HandleError();
+            uint count;
+            library.clGetDeviceIDsUnsafe(default, type, 0, null, &count).HandleError();
+
             var devices = new DeviceId[count];
-            library.clGetDeviceIDs(EmptyPlatform, type, count, devices, out _).HandleError();
+
+            fixed (DeviceId* devicesPtr = devices)
+                library.clGetDeviceIDsUnsafe(default, type, count, devicesPtr, null).HandleError();
 
             return devices;
         }
