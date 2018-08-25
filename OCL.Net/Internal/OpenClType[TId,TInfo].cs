@@ -35,9 +35,9 @@ namespace OCL.Net.Internal
         protected abstract unsafe ErrorCode GetInfo(TInfo info, UIntPtr bufferSize, byte* buffer, UIntPtr* size);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected string LoadString(TInfo info, ref string cache)
+        protected unsafe string LoadString(TInfo info, ref string cache)
         {
-            return cache ?? (cache = LoadString(info));
+            return InfoLoader.LoadString(info, GetInfo, ref cache);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -47,15 +47,9 @@ namespace OCL.Net.Internal
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected T LoadValue<T>(TInfo info, ref T? cache) where T : unmanaged
+        protected unsafe T LoadValue<T>(TInfo info, ref T? cache) where T : unmanaged
         {
-            if (cache.HasValue)
-                return cache.Value;
-
-            var value = LoadValue<T>(info);
-            cache = value;
-
-            return value;
+            return InfoLoader.LoadValue(info, GetInfo, ref cache);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -65,9 +59,9 @@ namespace OCL.Net.Internal
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected T[] LoadArray<T>(TInfo info, ref T[] cache) where T : unmanaged
+        protected unsafe T[] LoadArray<T>(TInfo info, ref T[] cache) where T : unmanaged
         {
-            return cache ?? (cache = LoadArray<T>(info));
+            return InfoLoader.LoadArray(info, GetInfo, ref cache);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

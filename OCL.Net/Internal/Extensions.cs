@@ -22,6 +22,70 @@ namespace OCL.Net.Internal
             return ErrorCode.Success;
         }
 
+        [SuppressMessage("ReSharper", "SwitchStatementMissingSomeCases")]
+        public static MemoryFlags ToDeviceFlags(this MemFlags memFlags)
+        {
+            const MemFlags deviceFlags = MemFlags.MemReadOnly | MemFlags.MemWriteOnly;
+
+            switch (memFlags & deviceFlags)
+            {
+                case MemFlags.MemReadWrite:
+                    return MemoryFlags.Read;
+                case MemFlags.MemWriteOnly:
+                    return MemoryFlags.Write;
+                default:
+                    return MemoryFlags.Read | MemoryFlags.Write;
+            }
+        }
+
+        [SuppressMessage("ReSharper", "SwitchStatementMissingSomeCases")]
+        public static MemoryFlags ToHostFlags(this MemFlags memFlags)
+        {
+            const MemFlags hostFlags = MemFlags.MemHostReadOnly | MemFlags.MemHostWriteOnly | MemFlags.MemHostNoAccess;
+
+            switch (memFlags & hostFlags)
+            {
+                case MemFlags.MemHostWriteOnly:
+                    return MemoryFlags.Read;
+                case MemFlags.MemHostReadOnly:
+                    return MemoryFlags.Write;
+                case MemFlags.MemHostNoAccess:
+                    return 0;
+                default:
+                    return MemoryFlags.Read | MemoryFlags.Write;
+            }
+        }
+
+        public static MemFlags ToDeviceNativeFlags(this MemoryFlags memoryFlags)
+        {
+            switch (memoryFlags)
+            {
+                case MemoryFlags.Read:
+                    return MemFlags.MemReadOnly;
+                case MemoryFlags.Write:
+                    return MemFlags.MemWriteOnly;
+                case 0:
+                    return 0;
+                default:
+                    return MemFlags.MemReadWrite;
+            }
+        }
+
+        public static MemFlags ToHostNativeFlags(this MemoryFlags memoryFlags)
+        {
+            switch (memoryFlags)
+            {
+                case MemoryFlags.Read:
+                    return MemFlags.MemHostReadOnly;
+                case MemoryFlags.Write:
+                    return MemFlags.MemHostWriteOnly;
+                case 0:
+                    return MemFlags.MemHostNoAccess;
+                default:
+                    return 0;
+            }
+        }
+
         public static Device[] ToDevices(this DeviceId[] ids, IOpenCl library)
         {
             var devices = new Device[ids.Length];

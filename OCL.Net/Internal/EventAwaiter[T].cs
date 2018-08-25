@@ -21,11 +21,13 @@ namespace OCL.Net.Internal
 
         public void OnCompleted(Action continuation)
         {
+            _event.Flush();
             _event.OnComplete(continuation);
         }
 
         public void UnsafeOnCompleted(Action continuation)
         {
+            _event.Flush();
             _event.OnComplete(continuation);
         }
     }

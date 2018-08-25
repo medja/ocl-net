@@ -65,7 +65,7 @@ namespace OCL.Net.Internal
                 size = length * sizeof(T);
 
                 fixed (T* source = _buffers[i])
-                    Buffer.MemoryCopy(source, destination + offset, size, size);
+                    System.Buffer.MemoryCopy(source, destination + offset, size, size);
 
                 offset += length;
             }
@@ -73,7 +73,7 @@ namespace OCL.Net.Internal
             size = _offset * sizeof(T);
 
             fixed (T* source = _lastBuffer)
-                Buffer.MemoryCopy(source, destination + offset, size, size);
+                System.Buffer.MemoryCopy(source, destination + offset, size, size);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

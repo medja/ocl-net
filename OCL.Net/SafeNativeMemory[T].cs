@@ -106,7 +106,7 @@ namespace OCL.Net
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public NativeMemory<T>.Enumerator GetEnumerator()
+        public NativeMemoryEnumerator<T> GetEnumerator()
         {
             return _memory.GetEnumerator();
         }
