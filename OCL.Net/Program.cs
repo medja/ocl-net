@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using OCL.Net.Internal;
 using OCL.Net.Native;
 using OCL.Net.Native.Enums;
@@ -10,6 +12,26 @@ namespace OCL.Net
     {
         private Program(ProgramId id, IOpenCl lib) : base(id, lib)
         { }
+
+        public Kernel CreateKernel(string kernelName)
+        {
+            var kernelId = Library.clCreateKernel(Id, kernelName, out var errorCode);
+            errorCode.HandleError();
+
+            return Kernel.FromId(Library, kernelId);
+        }
+
+        public unsafe Dictionary<string, Kernel> CreateKernels()
+        {
+            var kernelIds = new KernelId[NumKernels];
+
+            fixed (KernelId* kernelIdsPtr = kernelIds)
+                Library.clCreateKernelsInProgramUnsafe(Id, (uint) kernelIds.Length, kernelIdsPtr, null).HandleError();
+
+            return kernelIds
+                .Select(kernelId => Kernel.FromId(Library, kernelId))
+                .ToDictionary(kernel => kernel.FunctionName);
+        }
 
         protected override unsafe ErrorCode GetInfo(ProgramInfo info, UIntPtr bufferSize, byte* buffer, UIntPtr* size)
         {

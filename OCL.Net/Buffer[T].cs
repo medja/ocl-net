@@ -8,6 +8,8 @@ namespace OCL.Net
     public sealed partial class Buffer<T> : Buffer
         where T : unmanaged
     {
+        public Type DataType => typeof(T);
+
         private Buffer(BufferId id, IOpenCl lib, MemoryHandle handle, IDisposable disposable)
             : base(id, lib, handle, disposable)
         { }
