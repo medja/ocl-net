@@ -11,7 +11,7 @@ namespace OCL.Net
     public sealed partial class Kernel : RefCountedType<KernelId, KernelInfo>
     {
         public IReadOnlyList<KernelArgument> Arguments { get; }
-        public IReadOnlyList<KernelWorkGroup> WorkGroups { get; }
+        public IReadOnlyDictionary<DeviceId, KernelWorkGroup> WorkGroups { get; }
 
         private Kernel(KernelId id, IOpenCl lib) : base(id, lib)
         {
@@ -21,7 +21,7 @@ namespace OCL.Net
                 arguments[i] = new KernelArgument(i, this);
 
             Arguments = arguments;
-            WorkGroups = Program.Devices.Select(device => new KernelWorkGroup(device, this)).ToArray();
+            WorkGroups = Program.Devices.ToDictionary(device => device.Id, device => new KernelWorkGroup(device, this));
         }
 
         protected override unsafe ErrorCode GetInfo(KernelInfo info, UIntPtr bufferSize, byte* buffer, UIntPtr* size)
