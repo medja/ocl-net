@@ -18,6 +18,7 @@ namespace OCL.Net
 
         private bool _autoDispose;
         private List<Action> _continuations;
+        private List<Action> _unsafeContinuations;
 
         private readonly bool _userEvent;
         private readonly object _syncLock = new object();

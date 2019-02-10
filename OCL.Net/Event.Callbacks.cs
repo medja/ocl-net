@@ -28,6 +28,25 @@ namespace OCL.Net
             try { continuation(); } catch { /* ignored */ }
         }
 
+        internal void UnsafeOnComplete(Action continuation)
+        {
+            lock (_syncLock)
+            {
+                if (!IsCompleted)
+                {
+                    if (_unsafeContinuations == null)
+                        _unsafeContinuations = new List<Action> {continuation};
+                    else
+                        _unsafeContinuations.Add(continuation);
+
+                    return;
+                }
+            }
+
+            try { continuation(); } catch { /* ignored */ }
+        }
+
+        [SuppressMessage("ReSharper", "InvertIf")]
         protected void UpdateExecutionStatus(CommandExecutionStatus status)
         {
             var errorCode = status.GetErrorCode();
@@ -40,6 +59,7 @@ namespace OCL.Net
 
             var dispose = false;
             List<Action> continuations = null;
+            List<Action> unsafeContinuations = null;
 
             lock (_syncLock)
             {
@@ -50,6 +70,9 @@ namespace OCL.Net
 
                     continuations = _continuations;
                     _continuations = null;
+
+                    unsafeContinuations = _unsafeContinuations;
+                    _unsafeContinuations = null;
 
                     IsCompleted = true;
                     IsFlushed = true;
@@ -69,6 +92,14 @@ namespace OCL.Net
 
             if (dispose)
                 Release();
+
+            if (unsafeContinuations != null)
+            {
+                foreach (var unsafeContinuation in unsafeContinuations)
+                {
+                    try { unsafeContinuation(); } catch { /* ignored */ }
+                }
+            }
         }
 
         [SuppressMessage("ReSharper", "UnusedParameter.Local")]

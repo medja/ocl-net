@@ -28,7 +28,7 @@ namespace OCL.Net.Internal
         public void UnsafeOnCompleted(Action continuation)
         {
             _event.Flush();
-            _event.OnComplete(continuation);
+            _event.UnsafeOnComplete(continuation);
         }
     }
 }
