@@ -56,7 +56,7 @@ namespace OCL.Net
                 throw new ArgumentNullException(nameof(context));
 
             var lib = context.Library;
-            var flags = deviceFlags.ToDeviceNativeFlags() | hostFlags.ToDeviceNativeFlags();
+            var flags = deviceFlags.ToDeviceNativeFlags() | hostFlags.ToHostNativeFlags();
 
             if (usePinnedMemory ?? hostFlags != 0)
                 flags |= MemFlags.MemAllocHostPtr;
